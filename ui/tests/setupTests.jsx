@@ -51,6 +51,8 @@ if (typeof window !== 'undefined') {
   }
 }
 const errorLog = console.error;
+console.log(errorLog);
+
 Object.defineProperty(global.window.console, 'error', {
   writable: true,
   configurable: true,
