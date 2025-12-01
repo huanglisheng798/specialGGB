@@ -12,7 +12,36 @@ export function getRemoteMenu() {
 }
 
 export function setRemoteMenu(data: any) {
-  remoteMenu = data;
+  // 处理菜单数据，移除多余的文字
+  const processMenuItems = (items: any[]) => {
+    return items.map(item => {
+      // 移除菜单名称中多余的文字，保留简洁的名称
+      let cleanName = item.name;
+      if (cleanName) {
+        // 移除常见的多余前缀或后缀
+        cleanName = cleanName.replace('管理', '').replace('系统', '').trim();
+      }
+      
+      const processedItem = {
+        ...item,
+        name: cleanName
+      };
+      
+      // 递归处理子菜单
+      if (item.routes && item.routes.length > 0) {
+        processedItem.routes = processMenuItems(item.routes);
+      }
+      
+      return processedItem;
+    });
+  };
+  
+  // 处理顶层菜单数据
+  if (data && Array.isArray(data)) {
+    remoteMenu = processMenuItems(data);
+  } else {
+    remoteMenu = data;
+  }
 }
 
 

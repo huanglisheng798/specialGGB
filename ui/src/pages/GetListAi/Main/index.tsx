@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Card, Space, Table, Modal, Form, InputNumber, Input, Select, Typography, Divider } from 'antd';
+import { Button, Card, Space, Table, Modal, Form, InputNumber, Select } from 'antd';
 import { ReloadOutlined, PlusOutlined, DeleteOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { message } from 'antd';
 import { useModel } from '@umijs/max';
@@ -387,47 +387,50 @@ const UserCryptoPurchasesPage: React.FC = () => {
       title: '记录ID',
       dataIndex: 'id',
       key: 'id',
-      width: 100
+      width: 100,
+      render: (text: number) => <span className={styles.fontStyles.price}>{text}</span>
     },
     {
       title: '用户ID',
       dataIndex: 'userId',
       key: 'userId',
-      width: 100
+      width: 100,
+      render: (text: number) => <span className={styles.fontStyles.price}>{text}</span>
     },
     {
       title: '虚拟货币名称',
       dataIndex: 'cryptoName',
       key: 'cryptoName',
-      width: 150
+      width: 150,
+      render: (text: string) => <span className={styles.fontStyles.emphasis}>{text}</span>
     },
     {
       title: '购买数量',
       dataIndex: 'amount',
       key: 'amount',
       width: 120,
-      render: (text: number) => text.toFixed(8)
+      render: (text: number) => <span className={styles.fontStyles.price}>{text.toFixed(8)}</span>
     },
     {
       title: '单价(USD)',
       dataIndex: 'pricePerUnit',
       key: 'pricePerUnit',
       width: 150,
-      render: (text: number) => `$${text.toFixed(2)}`
+      render: (text: number) => <span className={styles.fontStyles.price}>${text.toFixed(2)}</span>
     },
     {
       title: '总花费(USD)',
       dataIndex: 'totalSpent',
       key: 'totalSpent',
       width: 150,
-      render: (text: number) => `$${text.toFixed(2)}`
+      render: (text: number) => <span className={styles.fontStyles.price}>${text.toFixed(2)}</span>
     },
     {
       title: '购买时间',
       dataIndex: 'purchaseDate',
       key: 'purchaseDate',
       width: 200,
-      render: (text: string) => new Date(text).toLocaleString()
+      render: (text: string) => <span className={styles.fontStyles.small}>{new Date(text).toLocaleString()}</span>
     },
     {
       title: '操作',
@@ -438,8 +441,9 @@ const UserCryptoPurchasesPage: React.FC = () => {
           <Button
             danger
             icon={<DeleteOutlined />}
-            size="small"
             onClick={() => handleSell(record)}
+            type="primary"
+            className={styles.sellButton}
           >
             卖出
           </Button>
@@ -501,7 +505,7 @@ const UserCryptoPurchasesPage: React.FC = () => {
     buyForm.setFieldsValue({
       cryptoName: coin.name || '',
       pricePerUnit: validPrice,
-      amount: 1 // 默认购买1个单位
+      amount: 0.001, // 默认购买少量
     });
     
     // 禁用价格输入
@@ -510,14 +514,16 @@ const UserCryptoPurchasesPage: React.FC = () => {
 
   return (
     <div className={styles.userCryptoPurchasesPage}>
-      <Card>
-        <div className={styles.cardTitle}>
-          <h2>用户虚拟货币持仓</h2>
-          <Space>
+      <Card className={styles.card}>
+        <div className={styles.header}>
+            <h2 className={`${styles.title} ${styles.fontStyles.title}`}>用户虚拟货币持仓</h2>
+            <div className={styles.buttonGroup}>
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => handleBuy()}
+              onClick={handleBuy}
+              size="middle"
+              className={`${styles.buyButton} ${styles.fontStyles.button}`}
             >
               购买
             </Button>
@@ -525,11 +531,13 @@ const UserCryptoPurchasesPage: React.FC = () => {
               type="primary"
               icon={<ReloadOutlined />}
               loading={recommendationLoading}
-          onClick={fetchRecommendedCoins}
-        >
-          推荐购买
-        </Button>
-          </Space>
+              onClick={fetchRecommendedCoins}
+              size="middle"
+              className={`${styles.recommendButton} ${styles.fontStyles.button}`}
+            >
+              推荐购买
+            </Button>
+          </div>
         </div>
         <Table
           className={styles.table}
@@ -556,145 +564,146 @@ const UserCryptoPurchasesPage: React.FC = () => {
         onCancel={handleBuyModalClose}
         okText="确认购买"
         cancelText="取消"
+        className={styles.modal}
       >
-        <Form form={buyForm} layout="vertical">
-          <Form.Item
-            name="cryptoName"
-            label="虚拟货币名称"
-            rules={[{ required: true, message: '请输入虚拟货币名称' }]}
-          >
-            <Select
-              mode="tags"
-              placeholder="选择或输入虚拟货币名称"
-              style={{ width: '100%' }}
-              filterOption={(inputValue, option) => {
-                if (!inputValue || !option) return false;
-                return option.label.toLowerCase().includes(inputValue.toLowerCase());
-              }}
-              options={cryptoNames.map(name => ({ label: name, value: name }))}
-              onChange={(value) => {
-                // 处理选择或输入的虚拟货币名称
-                const selectedName = Array.isArray(value) ? value[0] : value;
-                if (selectedName) {
-                  // 检查是否为已有货币名称
-                  const isExistingCrypto = cryptoNames.includes(selectedName);
-                  if (isExistingCrypto) {
-                    // 自动填充最新价格
-                    const latestPrice = cryptoPrices.get(selectedName);
-                    if (latestPrice) {
-                      buyForm.setFieldValue('pricePerUnit', parseFloat(latestPrice.toString()));
+        <div className={styles.modalContent}>
+          <Form form={buyForm} layout="vertical">
+            <Form.Item
+              name="cryptoName"
+              label="虚拟货币名称"
+              rules={[{ required: true, message: '请输入虚拟货币名称' }]}
+              className={styles.formItem}
+            >
+              <Select
+                mode="tags"
+                placeholder="选择或输入虚拟货币名称"
+                style={{ width: '100%' }}
+                filterOption={(inputValue, option) => {
+                  if (!inputValue || !option) return false;
+                  return option.label.toLowerCase().includes(inputValue.toLowerCase());
+                }}
+                options={cryptoNames.map(name => ({ label: name, value: name }))}
+                onChange={(value) => {
+                  // 处理选择或输入的虚拟货币名称
+                  const selectedName = Array.isArray(value) ? value[0] : value;
+                  if (selectedName) {
+                    // 检查是否为已有货币名称
+                    const isExistingCrypto = cryptoNames.includes(selectedName);
+                    if (isExistingCrypto) {
+                      // 自动填充最新价格
+                      const latestPrice = cryptoPrices.get(selectedName);
+                      if (latestPrice) {
+                        buyForm.setFieldValue('pricePerUnit', parseFloat(latestPrice.toString()));
+                      }
+                      // 禁用价格输入
+                      setPriceDisabled(true);
+                    } else {
+                      // 新货币名称，清除价格并允许输入
+                      buyForm.setFieldValue('pricePerUnit', undefined);
+                      setPriceDisabled(false);
                     }
-                    // 禁用价格输入
-                    setPriceDisabled(true);
-                  } else {
-                    // 新货币名称，清除价格并允许输入
-                    buyForm.setFieldValue('pricePerUnit', undefined);
-                    setPriceDisabled(false);
                   }
-                }
-              }}
-            />
-          </Form.Item>
-          <Form.Item
-            name="amount"
-            label="购买数量"
-            rules={[{ required: true, type: 'number', min: 0.00000001, message: '请输入有效的购买数量' }]}
-          >
-            <InputNumber style={{ width: '100%' }} placeholder="数量" step={0.00000001} />
-          </Form.Item>
-          <Form.Item
-            name="pricePerUnit"
-            label="单价(USD)"
-            rules={[{ required: true, type: 'number', min: 0.01, message: '请输入有效的单价' }]}
-          >
-            <InputNumber 
-              style={{ width: '100%' }} 
-              placeholder="单价" 
-              step={0.01}
-              disabled={priceDisabled}
-            />
-          </Form.Item>
-        </Form>
+                }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="amount"
+              label="购买数量"
+              rules={[{ required: true, type: 'number', min: 0.00000001, message: '请输入有效的购买数量' }]}
+              className={styles.formItem}
+            >
+              <InputNumber style={{ width: '100%' }} placeholder="数量" step={0.00000001} />
+            </Form.Item>
+            <Form.Item
+              name="pricePerUnit"
+              label="单价(USD)"
+              rules={[{ required: true, type: 'number', min: 0.01, message: '请输入有效的单价' }]}
+              className={styles.formItem}
+            >
+              <InputNumber 
+                style={{ width: '100%' }} 
+                placeholder="单价" 
+                step={0.01}
+                disabled={priceDisabled}
+              />
+            </Form.Item>
+          </Form>
+        </div>
       </Modal>
 
       {/* 推荐购买区域 */}
       {showRecommendations && (
-        <div className={styles.recommendationsSection}>
-          <Divider orientation="left">
-            <Typography.Title level={4}>推荐购买</Typography.Title>
-          </Divider>
-          
-          {recommendedCoins.length > 0 ? (
-            <Space direction="vertical" style={{ width: '100%' }}>
-              {recommendedCoins.map((coin, index) => (
-                <Card key={index} className={styles.recommendationCard}>
-                  <div className={styles.recommendationContent}>
-                    <div className={styles.coinInfo}>
-                      <Typography.Title level={5}>{coin.name} ({coin.symbol})</Typography.Title>
-                      <div className={styles.priceInfo}>
-                        <span>价格: ${formatPrice(coin.price)}</span>
-                        <span className={typeof coin.change === 'number' && !isNaN(coin.change) && coin.change > 0 ? styles.priceIncrease : styles.priceDecrease}>
-                          {typeof coin.change === 'number' && !isNaN(coin.change) ? (coin.change > 0 ? '+' : '') + formatPrice(coin.change) : '0.00'} (${formatPrice(coin.change_percent)}%)
-                        </span>
-                      </div>
+        <div className={styles.recommendationCard}>
+          <div className={styles.recommendationHeader}>
+            <h3 className={`${styles.recommendationTitle} ${styles.fontStyles.subtitle}`}>推荐购买</h3>
+          </div>
+          <div className={styles.recommendationContent}>
+            {recommendedCoins.length > 0 ? (
+              <div className={styles.recommendationList}>
+                {recommendedCoins.map((coin, index) => (
+                  <div key={index} className={styles.recommendationItem}>
+                    <h4 className={`${styles.recommendationItemTitle} ${styles.fontStyles.emphasis}`}>{coin.name} ({coin.symbol})</h4>
+                    <div className={`${styles.recommendationItemPrice} ${styles.fontStyles.price}`}>${formatPrice(coin.price)}</div>
+                    <div 
+                      className={`${styles.recommendationItemChange} ${coin.change_percent > 0 ? styles.positiveChange : styles.negativeChange}`}
+                    >
+                      <span className={styles.fontStyles.small}>{Math.abs(coin.change_percent).toFixed(2)}%</span>
                     </div>
                     <Button 
-                      type="primary" 
-                      icon={<ShoppingCartOutlined />}
+                      className={`${styles.buyButton} ${styles.fontStyles.button}`}
                       onClick={() => handleBuyRecommendedCoin(coin)}
+                      icon={<ShoppingCartOutlined />}
                     >
-                      购买
+                      立即购买
                     </Button>
                   </div>
-                </Card>
-              ))}
-              <Typography.Paragraph type="secondary" style={{ textAlign: 'center' }}>
-                投资有风险，以上分析仅供参考，不构成投资建议
-              </Typography.Paragraph>
-            </Space>
-          ) : (
-            <Card>
-              <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                {recommendationLoading ? (
-                  '获取推荐中...'
-                ) : (
-                  '暂无推荐货币数据'
-                )}
+                ))}
               </div>
-            </Card>
-          )}
+            ) : (
+              <p className={styles.fontStyles.body}>暂无推荐的虚拟货币</p>
+            )}
+          </div>
         </div>
       )}
 
       {/* Sell Modal */}
       <Modal
-         title="卖出虚拟货币"
-         visible={sellModalVisible}
-         onOk={handleSellSubmit}
-         onCancel={handleSellModalClose}
-         okText="确认卖出"
-         cancelText="取消"
-       >
-         <div>
-           <p>虚拟货币名称: {selectedRecord?.cryptoName}</p>
-           <p>当前持有数量: {selectedRecord?.amount.toFixed(8)}</p>
-           <p>单价: ${selectedRecord?.pricePerUnit.toFixed(2)}</p>
-           <p>总花费: ${selectedRecord?.totalSpent.toFixed(2)}</p>
-           <p>购买时间: {selectedRecord?.purchaseDate ? new Date(selectedRecord.purchaseDate).toLocaleString() : ''}</p>
-           <div style={{ marginTop: 16 }}>
-             <label>卖出数量:</label>
-             <InputNumber
-               style={{ width: '100%', marginTop: 8 }}
-               min={0.00000001}
-               max={selectedRecord?.amount || 0}
-               step={0.00000001}
-               value={sellAmount}
-               onChange={(value) => value !== null && setSellAmount(value)}
-             />
-           </div>
-         </div>
-       </Modal>
-
+        title="卖出虚拟货币"
+        visible={sellModalVisible}
+        onOk={handleSellSubmit}
+        onCancel={handleSellModalClose}
+        okText="确认卖出"
+        cancelText="取消"
+        className={styles.modal}
+      >
+        <div className={styles.modalContent}>
+          <Form form={sellForm} layout="vertical">
+            <Form.Item className={styles.formItem}>
+              <p><strong>虚拟货币名称:</strong> {selectedRecord?.cryptoName}</p>
+              <p><strong>当前持有数量:</strong> {selectedRecord?.amount.toFixed(8)}</p>
+              <p><strong>单价:</strong> ${selectedRecord?.pricePerUnit.toFixed(2)}</p>
+              <p><strong>总花费:</strong> ${selectedRecord?.totalSpent.toFixed(2)}</p>
+              <p><strong>购买时间:</strong> {selectedRecord?.purchaseDate ? new Date(selectedRecord.purchaseDate).toLocaleString() : ''}</p>
+            </Form.Item>
+            <Form.Item
+              name="sellAmount"
+              label="卖出数量"
+              initialValue={sellAmount}
+              rules={[{ required: true, type: 'number', min: 0.00000001, message: '请输入有效的卖出数量' }]}
+              className={styles.formItem}
+            >
+              <InputNumber
+                style={{ width: '100%' }}
+                min={0.00000001}
+                max={selectedRecord?.amount || 0}
+                step={0.00000001}
+                value={sellAmount}
+                onChange={(value) => value !== null && setSellAmount(value)}
+              />
+            </Form.Item>
+          </Form>
+        </div>
+      </Modal>
     </div>
   );
 };
