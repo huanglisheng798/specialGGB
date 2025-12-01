@@ -4,7 +4,14 @@ import { request } from '@umijs/max';
 export async function listCryptoPriceInfoPage(query?: any) {
   return request('/api/wms/cryptoPriceInfo/list', {
     method: 'GET',
-    params: query
+    params: query,
+    // 设置请求头避免缓存
+    headers: {
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache'
+    },
+    // 不使用缓存
+    skipErrorHandler: false
   });
 }
 
@@ -16,9 +23,12 @@ export async function listCryptoPriceInfo(query?: any) {
   });
 }
 
-// 刷新虚拟货币价格信息
+// 刷新虚拟货币价格信息 - 使用AI爬取最新数据
 export async function refreshCryptoPriceInfo() {
   return request('/api/wms/cryptoPriceInfo/refresh', {
-    method: 'POST'
+    method: 'POST',
+    timeout: 600000, // 设置10分钟超时，因为从AI爬取数据可能需要较长时间
+    // 确保每次都是新请求
+    data: { _t: Date.now() }
   });
 }
