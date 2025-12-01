@@ -67,6 +67,7 @@ export default [
   {
     name: 'basic-info',
     path: '/basic-info',
+    hidden: true,
     routes: [
       {
         name: '字典数据',
