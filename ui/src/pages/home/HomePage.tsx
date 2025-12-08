@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import styles from './index.less'; 
 import { TableOutlined, UngroupOutlined, BulbOutlined, ReloadOutlined, DatabaseOutlined, BarChartOutlined } from '@ant-design/icons';
-import homeJpeg from '@/pages/home/home.jpeg';
 import { history } from 'umi'; 
 import { message } from 'antd';
 import { refreshNews, analyzeNewsWithAI } from '@/services/news';
+import '../User/Login/Fall.less';
 
 const HomePage = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +59,14 @@ const HomePage = () => {
     };
 
     return (
-        <div className={styles.container} style={{ backgroundImage: `url(${homeJpeg})` }}>
+        <div className={styles.container} style={{ backgroundImage: `url(/image/login.jpg)` }}>
+            {/* 硬币坠落动画容器 */}
+            <div className="coin-fall-container">
+                {Array.from({ length: 20 }).map((_, index) => (
+                    <div key={index} className={`coin coin-${index + 1}`}></div>
+                ))}
+            </div>
+            <div className={styles.rotatingCoin}></div>
             <div className={styles.title}>AI驱动数字货币投资辅助系统</div>
             <div className={styles.menuGrid}>
                 {/* 右上：智能推荐 */}

@@ -8,13 +8,41 @@
     background-position: center;
     background-repeat: no-repeat;
     display: flex;
-    flex-direction: column; /* 改为垂直布局 */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-/* 新增标题样式 */
+/* 旋转硬币图片样式 */
+.rotatingCoin {
+    width: 850px;
+    height: 850px;
+    background-image: url('/image/home1.jpg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    animation: rotate 10s linear infinite;
+}
+
+/* 旋转动画关键帧 */
+@keyframes rotate {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* 确保标题和菜单在旋转图片之上 */
 .title {
+    position: relative;
+    z-index: 2;
     background: rgba(255, 255, 255, 0.1);
     border: 2px solid transparent;
     border-image: linear-gradient(to right, #f9f9fa, #3b82f6, #f9f9fa) 1;
@@ -28,32 +56,36 @@
 }
 
 .menuGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: auto 1fr auto;
-    height: 50vh;
-    width: 50vw;
-    gap: 1rem;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
 }
 
 .menuItem {
-    height: 100%;
-    min-height: 120px;
+    flex: 1;
+    max-width: 300px;
+    min-height: 200px;
     background: rgba(0,151,167, 0.9);
     border-radius: 0.8rem;
     display: flex;
-    flex-direction: column; /* 改为垂直布局 */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     transition: all 0.3s;
-    padding: 1.5rem;
-    box-shadow: inset 0 0 10px 3px rgba(255, 255, 255, 0.5); /* 向内发光效果 */
+    padding: 2rem;
+    box-shadow: inset 0 0 10px 3px rgba(255, 255, 255, 0.5);
     color: #e3f2fd;
     /* 图标样式 */
     .anticon {
-        font-size: 2.5rem;  // 从2rem加大到2.5rem
-        margin-bottom: 1.5rem; // 从1rem加大到1.5rem
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
         color: #3b82f6;
     }
     
@@ -62,47 +94,12 @@
         font-size: 1.2rem;
         font-weight: bold;
         text-align: center;
-        margin-top: 0.5rem; // 新增文字上边距
     }
 
     &:hover {
         transform: translateY(-5px);
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     }
-}
-
-.center {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    min-height: 280px;
-    background: rgba(0,145,234, 0.9) !important;
-    
-    .anticon {
-        color: white;
-        font-size: 3rem; // 从2.5rem加大到3rem
-        margin-bottom: 1.8rem; // 加大间距
-    }
-    
-    span {
-        color: white;
-        font-size: 1.5rem;
-        margin-top: 0.8rem; // 新增文字上边距
-    }
-
-    &:hover {
-        background: #2563eb !important;
-    }
-}
-
-.topLeft, .topRight {
-    grid-row: 1;
-    min-height: 23vh;
-    margin-bottom: 0.5rem; /* 顶部菜单下边距 */
-}
-
-.bottomLeft, .bottomRight {
-    grid-row: 2;
-    margin-top: 0.5rem; /* 底部菜单上边距 */
 }
 
 .menuButton {

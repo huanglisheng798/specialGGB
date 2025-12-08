@@ -22,6 +22,7 @@ import Settings from '../../../../config/defaultSettings';
 import React, { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { clearSessionToken, setSessionToken } from '@/access';
+import './Fall.less';
 
 const ActionIcons = () => {
   const langClassName = useEmotionCss(({ token }) => {
@@ -98,7 +99,7 @@ const Login: React.FC = () => {
       height: '100vh',
       overflow: 'auto',
       backgroundImage:
-        "url('https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/V-_oS6r-i7wAAAAAAAAAAAAAFl94AQBr')",
+        "url('/image/login.jpg')",
       backgroundSize: '100% 100%',
     };
   });
@@ -181,6 +182,12 @@ const Login: React.FC = () => {
           - {Settings.title}
         </title>
       </Helmet>
+      {/* 硬币坠落动画容器 */}
+      <div className="coin-fall-container">
+        {Array.from({ length: 20 }).map((_, index) => (
+          <div key={index} className={`coin coin-${index + 1}`}></div>
+        ))}
+      </div>
       <Lang />
       <div
         style={{
@@ -194,8 +201,8 @@ const Login: React.FC = () => {
             maxWidth: '75vw',
           }}
           logo={<img alt="logo" src="/logo.svg" />}
-          title="软3区1后端开发练习"
-          subTitle={intl.formatMessage({ id: 'pages.layouts.userLayout.title' })}
+          title="AI驱动数字货币投资辅助系统登录"
+          subTitle="数字货币浪潮中，AI投资引擎，精准领航财富新航道"
           initialValues={{
             autoLogin: true,
           }}
