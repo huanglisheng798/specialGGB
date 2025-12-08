@@ -1,8 +1,8 @@
 import React from 'react';
 import styles from './index.less'; 
 import { FileTextOutlined, UngroupOutlined, TableOutlined, SettingOutlined,BulbOutlined } from '@ant-design/icons';
-import homeJpeg from '@/pages/home/home.jpeg';
-import { history } from 'umi'; 
+import { history } from 'umi';
+import '../User/Login/Fall.less'; 
 
 const HomePage = () => {
     const navigateToBasicInfo = (pathname: string) => {
@@ -11,7 +11,14 @@ const HomePage = () => {
     };
 
     return (
-        <div className={styles.container} style={{ backgroundImage: `url(${homeJpeg})` }}>
+        <div className={styles.container} style={{ backgroundImage: `url(/image/login.jpg)` }}>
+            {/* 硬币坠落动画容器 */}
+            <div className="coin-fall-container">
+                {Array.from({ length: 20 }).map((_, index) => (
+                    <div key={index} className={`coin coin-${index + 1}`}></div>
+                ))}
+            </div>
+            <div className={styles.rotatingCoin}></div>
             <div className={styles.title}>AI驱动数字货币投资辅助系统</div>
             <div className={styles.menuGrid}>
                 {/* 左上：基础信息管理 */}

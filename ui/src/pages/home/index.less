@@ -8,13 +8,41 @@
     background-position: center;
     background-repeat: no-repeat;
     display: flex;
-    flex-direction: column; /* 改为垂直布局 */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-/* 新增标题样式 */
+/* 旋转硬币图片样式 */
+.rotatingCoin {
+    width: 850px;
+    height: 850px;
+    background-image: url('/image/home1.jpg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    animation: rotate 10s linear infinite;
+}
+
+/* 旋转动画关键帧 */
+@keyframes rotate {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* 确保标题和菜单在旋转图片之上 */
 .title {
+    position: relative;
+    z-index: 2;
     background: rgba(255, 255, 255, 0.1);
     border: 2px solid transparent;
     border-image: linear-gradient(to right, #f9f9fa, #3b82f6, #f9f9fa) 1;
@@ -28,6 +56,8 @@
 }
 
 .menuGrid {
+    position: relative;
+    z-index: 2;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: auto 1fr auto;
