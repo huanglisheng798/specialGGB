@@ -66,11 +66,12 @@ const UserCryptoPurchasesPage: React.FC = () => {
   const [cryptoPrices, setCryptoPrices] = useState<Map<string, number>>(new Map());
   // 价格输入是否禁用
   const [priceDisabled, setPriceDisabled] = useState(false);
+  // 选中的记录
+  const [selectedRecord, setSelectedRecord] = useState<UserCryptoPurchases | null>(null);
 
   // Buy and Sell modals
   const [buyModalVisible, setBuyModalVisible] = useState(false);
   const [sellModalVisible, setSellModalVisible] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<UserCryptoPurchases | null>(null);
   const [sellAmount, setSellAmount] = useState(0);
   const [buyForm] = Form.useForm();
   const [sellForm] = Form.useForm();
@@ -81,6 +82,22 @@ const UserCryptoPurchasesPage: React.FC = () => {
   const [recommendedCoins, setRecommendedCoins] = useState<RecommendedCoin[]>([]);
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [recommendationLoading, setRecommendationLoading] = useState(false);
+  
+  // 格式化价格函数
+  const formatPrice = (value: any): string => {
+    try {
+      const numValue = Number(value);
+      if (isNaN(numValue)) {
+        return '0.00';
+      }
+      // 格式化数字，确保只有两位小数
+      const formatted = numValue.toFixed(2);
+      return formatted;
+    } catch (error) {
+      console.error('格式化价格出错:', error, '原始值:', value);
+      return '0.00';
+    }
+  };
   
   // 获取推荐的加密货币
   const fetchRecommendedCoins = async () => {
@@ -138,25 +155,26 @@ const UserCryptoPurchasesPage: React.FC = () => {
 
   // 获取用户虚拟货币购买记录列表
   const fetchPurchasesList = async () => {
-      setLoading(true);
-      try {
-        const res = await listUserCryptoPurchasesPage(queryParams);
-        if (res.code === 200) {
-          const originalList = res.rows || [];
-          // 合并相同名称的虚拟货币
-          const mergedList = mergeCryptoPurchases(originalList);
-          setPurchasesList(mergedList);
-          // 使用后端返回的实际总记录数，而不是合并后的列表长度
-          setTotal(res.total || 0);
-        } else {
-          message.error(res.msg || '获取用户虚拟货币购买记录失败');
-        }
-      } catch (error) {
-        message.error('获取用户虚拟货币购买记录失败');
-      } finally {
-        setLoading(false);
+    setLoading(true);
+    try {
+      const res = await listUserCryptoPurchasesPage(queryParams);
+      if (res.code === 200) {
+        const originalList = res.rows || [];
+        setPurchasesList(originalList);
+        setTotal(res.total || 0);
+      } else {
+        message.error(res.msg || '获取用户虚拟货币购买记录失败');
+        setPurchasesList([]);
+        setTotal(0);
       }
-    };
+    } catch (error) {
+      message.error('获取用户虚拟货币购买记录失败');
+      setPurchasesList([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
+    }
+  };
     
   // 合并相同名称的虚拟货币
   const mergeCryptoPurchases = (purchases: UserCryptoPurchases[]): UserCryptoPurchases[] => {
@@ -166,42 +184,14 @@ const UserCryptoPurchasesPage: React.FC = () => {
       const key = purchase.cryptoName;
       if (mergedMap.has(key)) {
         const existing = mergedMap.get(key)!;
-        // 合并数量
         existing.amount += purchase.amount;
-        // 计算新的总花费
         existing.totalSpent += purchase.totalSpent;
-        // 更新平均价格
-        existing.pricePerUnit = existing.totalSpent / existing.amount;
-        // 使用最早的购买时间
-        if (new Date(purchase.purchaseDate) < new Date(existing.purchaseDate)) {
-          existing.purchaseDate = purchase.purchaseDate;
-        }
       } else {
-        // 创建新的合并记录，使用第一个记录的ID
         mergedMap.set(key, { ...purchase });
       }
     });
     
     return Array.from(mergedMap.values());
-  };
-
-  // 刷新数据
-  const handleRefresh = async () => {
-    setButtonLoading(true);
-    try {
-      await fetchPurchasesList();
-      message.success('数据刷新成功');
-    } catch (error) {
-      message.error('刷新数据失败');
-    } finally {
-      setButtonLoading(false);
-    }
-  };
-
-  // Handle buy button click
-  const handleBuy = () => {
-    setBuyModalVisible(true);
-    buyForm.resetFields();
   };
 
   // Handle sell
@@ -233,6 +223,7 @@ const UserCryptoPurchasesPage: React.FC = () => {
           localStorage.removeItem('cryptoNamesCache');
           localStorage.removeItem('cryptoPricesCache');
           localStorage.removeItem('cryptoNamesCacheTime');
+          buyForm.resetFields();
         } else {
           message.error(res.msg || '购买失败');
         }
@@ -293,11 +284,13 @@ const UserCryptoPurchasesPage: React.FC = () => {
   // Handle modal close
   const handleBuyModalClose = () => {
     setBuyModalVisible(false);
+    buyForm.resetFields();
   };
 
   const handleSellModalClose = () => {
     setSellModalVisible(false);
     setSelectedRecord(null);
+    sellForm.resetFields();
   };
 
   // 分页变化
@@ -366,6 +359,36 @@ const UserCryptoPurchasesPage: React.FC = () => {
     } catch (error) {
       console.error('获取虚拟货币信息失败:', error);
     }
+  };
+
+  // 处理购买推荐的货币
+  const handleBuyRecommendedCoin = (coin: RecommendedCoin) => {
+    // 打开购买弹窗
+    setBuyModalVisible(true);
+    
+    // 确保价格是有效数字，使用更严格的验证
+    let validPrice = 0;
+    try {
+      // 先尝试直接使用price属性
+      validPrice = Number(coin.price);
+      // 如果不是有效数字，默认为0
+      if (isNaN(validPrice)) {
+        validPrice = 0;
+      }
+    } catch (error) {
+      console.error('处理推荐货币价格出错:', error, '原始价格:', coin.price);
+      validPrice = 0;
+    }
+    
+    // 填充表单数据
+    buyForm.setFieldsValue({
+      cryptoName: coin.name,
+      pricePerUnit: validPrice,
+      amount: 1, // 默认购买少量
+    });
+    
+    // 禁用价格输入
+    setPriceDisabled(true);
   };
 
   // 初始化数据
@@ -437,118 +460,53 @@ const UserCryptoPurchasesPage: React.FC = () => {
       key: 'action',
       width: 120,
       render: (_: unknown, record: UserCryptoPurchases) => (
-        <Space size="middle">
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleSell(record)}
-            type="primary"
-            className={styles.sellButton}
-          >
-            卖出
-          </Button>
-        </Space>
+        <Button 
+          type="primary" 
+          danger 
+          onClick={() => handleSell(record)}
+          icon={<DeleteOutlined />}
+        >
+          卖出
+        </Button>
       )
     }
   ];
 
-  // 价格格式化函数，确保数字格式正确
-  const formatPrice = (value: any): string => {
-    try {
-      // 检查输入是否为null或undefined
-      if (value === null || value === undefined) {
-        console.warn('价格值为null或undefined');
-        return '0.00';
-      }
-      
-      // 尝试转换为数字
-      const numValue = Number(value);
-      
-      // 检查是否为有效数字
-      if (isNaN(numValue)) {
-        console.warn('价格值无法转换为数字:', value);
-        return '0.00';
-      }
-      
-      // 格式化数字，确保只有两位小数
-      const formatted = numValue.toFixed(2);
-      console.log('格式化价格:', value, '->', formatted);
-      return formatted;
-    } catch (error) {
-      console.error('格式化价格出错:', error, '原始值:', value);
-      return '0.00';
-    }
-  }
-  
-  // 处理购买推荐的货币
-  const handleBuyRecommendedCoin = (coin: RecommendedCoin) => {
-    // 打开购买弹窗
-    setBuyModalVisible(true);
-    
-    // 确保价格是有效数字，使用更严格的验证
-    let validPrice = 0;
-    try {
-      // 先尝试直接使用price属性
-      validPrice = Number(coin.price);
-      // 如果不是有效数字，则设为0
-      if (isNaN(validPrice)) {
-        validPrice = 0;
-      }
-    } catch (error) {
-      console.error('转换价格出错:', error, '原始值:', coin.price);
-      validPrice = 0;
-    }
-    
-    console.log('购买推荐货币:', coin.name, '价格:', validPrice);
-    
-    // 填充表单数据
-    buyForm.setFieldsValue({
-      cryptoName: coin.name || '',
-      pricePerUnit: validPrice,
-      amount: 0.001, // 默认购买少量
-    });
-    
-    // 禁用价格输入
-    setPriceDisabled(true);
-  };
-
   return (
     <div className={styles.userCryptoPurchasesPage}>
-      <Card className={styles.card}>
-        <div className={styles.header}>
-            <h2 className={`${styles.title} ${styles.fontStyles.title}`}>用户虚拟货币持仓</h2>
-            <div className={styles.buttonGroup}>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleBuy}
-              size="middle"
-              className={`${styles.buyButton} ${styles.fontStyles.button}`}
-            >
-              购买
-            </Button>
-            <Button
-              type="primary"
-              icon={<ReloadOutlined />}
-              loading={recommendationLoading}
-              onClick={fetchRecommendedCoins}
-              size="middle"
-              className={`${styles.recommendButton} ${styles.fontStyles.button}`}
-            >
-              推荐购买
-            </Button>
+      <Card 
+        className={styles.card}
+        title={
+          <div className={styles.header}>
+            <h2 className={styles.title}>虚拟货币持仓</h2>
+            <Space className={styles.buttonGroup}>
+              <Button 
+                type="primary" 
+                onClick={() => setBuyModalVisible(true)}
+                icon={<PlusOutlined />}
+              >
+                购买虚拟货币
+              </Button>
+              <Button 
+                onClick={fetchRecommendedCoins}
+                icon={<ReloadOutlined />}
+                loading={recommendationLoading}
+              >
+                获取推荐
+              </Button>
+            </Space>
           </div>
-        </div>
+        }
+      >
         <Table
-          className={styles.table}
-          dataSource={purchasesList}
           columns={columns}
+          dataSource={purchasesList}
           rowKey="id"
           loading={loading}
           pagination={{
-            total: total,
             current: queryParams.pageNum,
             pageSize: queryParams.pageSize,
+            total: total,
             onChange: handlePageChange,
             showSizeChanger: true,
             pageSizeOptions: ['10', '20', '50', '100']
@@ -592,27 +550,18 @@ const UserCryptoPurchasesPage: React.FC = () => {
                     if (isExistingCrypto) {
                       // 自动填充最新价格
                       const latestPrice = cryptoPrices.get(selectedName);
-                      if (latestPrice) {
-                        buyForm.setFieldValue('pricePerUnit', parseFloat(latestPrice.toString()));
+                      if (latestPrice !== undefined) {
+                        buyForm.setFieldsValue({ pricePerUnit: latestPrice });
+                        setPriceDisabled(true);
+                      } else {
+                        setPriceDisabled(false);
                       }
-                      // 禁用价格输入
-                      setPriceDisabled(true);
                     } else {
-                      // 新货币名称，清除价格并允许输入
-                      buyForm.setFieldValue('pricePerUnit', undefined);
                       setPriceDisabled(false);
                     }
                   }
                 }}
               />
-            </Form.Item>
-            <Form.Item
-              name="amount"
-              label="购买数量"
-              rules={[{ required: true, type: 'number', min: 0.00000001, message: '请输入有效的购买数量' }]}
-              className={styles.formItem}
-            >
-              <InputNumber style={{ width: '100%' }} placeholder="数量" step={0.00000001} />
             </Form.Item>
             <Form.Item
               name="pricePerUnit"
@@ -626,6 +575,14 @@ const UserCryptoPurchasesPage: React.FC = () => {
                 step={0.01}
                 disabled={priceDisabled}
               />
+            </Form.Item>
+            <Form.Item
+              name="amount"
+              label="购买数量"
+              rules={[{ required: true, type: 'number', min: 0.00000001, message: '请输入有效的购买数量' }]}
+              className={styles.formItem}
+            >
+              <InputNumber style={{ width: '100%' }} placeholder="数量" step={0.00000001} />
             </Form.Item>
           </Form>
         </div>
