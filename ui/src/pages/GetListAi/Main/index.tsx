@@ -492,6 +492,7 @@ const UserCryptoPurchasesPage: React.FC = () => {
                 onClick={fetchRecommendedCoins}
                 icon={<ReloadOutlined />}
                 loading={recommendationLoading}
+                className={styles.recommendationButton}
               >
                 获取推荐
               </Button>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useModel } from '@umijs/max';
-import { Table, Button, message, Space, Typography, Spin } from 'antd';
+import { Card, Table, Button, message, Space, Typography, Spin } from 'antd';
 import { ReloadOutlined, ArrowUpOutlined, ArrowDownOutlined, StarOutlined } from '@ant-design/icons';
 import { listCryptoPriceInfoPage, refreshCryptoPriceInfo } from '@/services/wms/cryptoPriceInfo';
 import styles from './index.less';
@@ -106,19 +106,18 @@ const CryptoPriceInfoPage: React.FC = () => {
           badgeStyle = { 
             background: 'linear-gradient(135deg, #FFD700, #FFA500)',
             fontWeight: 'bold',
-            color: '#000',
-            padding: '4px 12px',
-            borderRadius: '6px',
-            display: 'inline-block',
-            boxShadow: '0 2px 10px rgba(255, 215, 0, 0.3)'
+            color: '#fff',
+            padding: '2px 8px',
+            borderRadius: '4px',
+            display: 'inline-block'
           };
         } else if (rank === 2) {
           badgeStyle = { 
             background: 'linear-gradient(135deg, #C0C0C0, #A9A9A9)',
             fontWeight: 'bold',
-            color: '#000',
-            padding: '4px 12px',
-            borderRadius: '6px',
+            color: '#fff',
+            padding: '2px 8px',
+            borderRadius: '4px',
             display: 'inline-block'
           };
         } else if (rank === 3) {
@@ -126,13 +125,13 @@ const CryptoPriceInfoPage: React.FC = () => {
             background: 'linear-gradient(135deg, #CD7F32, #A0522D)',
             fontWeight: 'bold',
             color: '#fff',
-            padding: '4px 12px',
-            borderRadius: '6px',
+            padding: '2px 8px',
+            borderRadius: '4px',
             display: 'inline-block'
           };
         }
         
-        return <span style={rank <= 3 ? badgeStyle : { fontWeight: '600', color: '#e0e6ed' }}>{text}</span>;
+        return <span style={rank <= 3 ? badgeStyle : { fontWeight: '500', color: '#333333' }}>{text}</span>;
       }
     },
     {
@@ -141,7 +140,7 @@ const CryptoPriceInfoPage: React.FC = () => {
       key: 'name',
       width: 150,
       render: (text: string) => (
-        <span style={{ fontWeight: '700', color: '#ffffff', fontSize: '15px' }}>{text}</span>
+        <span style={{ fontWeight: '500', color: '#1f2937' }}>{text}</span>
       )
     },
     {
@@ -151,14 +150,13 @@ const CryptoPriceInfoPage: React.FC = () => {
       width: 100,
       render: (text: string) => (
         <span style={{ 
-          background: 'rgba(0, 102, 204, 0.2)',
-          color: '#87ceeb',
-          padding: '6px 12px',
-          borderRadius: '6px',
-          fontWeight: '700',
+          background: 'rgba(22, 119, 255, 0.1)',
+          color: '#1677ff',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          fontWeight: '600',
           textTransform: 'uppercase',
-          fontSize: '13px',
-          border: '1px solid rgba(0, 102, 204, 0.3)'
+          fontSize: '12px'
         }}>
           {text}
         </span>
@@ -170,7 +168,7 @@ const CryptoPriceInfoPage: React.FC = () => {
       key: 'price',
       width: 180,
       render: (text: number) => (
-        <span style={{ fontWeight: '700', fontSize: '17px', color: '#ffffff' }}>
+        <span style={{ fontWeight: '600', fontSize: '16px', color: '#1f2937' }}>
           ${text.toFixed(2)}
         </span>
       )
@@ -181,7 +179,7 @@ const CryptoPriceInfoPage: React.FC = () => {
       key: 'marketCapUsd',
       width: 200,
       render: (text?: string) => text ? (
-        <span style={{ color: '#b0c4de' }}>
+        <span style={{ color: '#666666' }}>
           ${(parseFloat(text) / 1e9).toFixed(2)}B
         </span>
       ) : '-' 
@@ -192,7 +190,7 @@ const CryptoPriceInfoPage: React.FC = () => {
       key: 'volumeUsd24Hr',
       width: 200,
       render: (text?: string) => text ? (
-        <span style={{ color: '#b0c4de' }}>
+        <span style={{ color: '#666666' }}>
           ${(parseFloat(text) / 1e9).toFixed(2)}B
         </span>
       ) : '-'
@@ -206,21 +204,18 @@ const CryptoPriceInfoPage: React.FC = () => {
         const percent = text;
         const isPositive = percent >= 0;
         const color = isPositive ? '#52c41a' : '#ff4d4f';
-        const background = isPositive ? 'rgba(82, 196, 26, 0.2)' : 'rgba(255, 77, 79, 0.2)';
-        const borderColor = isPositive ? 'rgba(82, 196, 26, 0.4)' : 'rgba(255, 77, 79, 0.4)';
+        const background = isPositive ? 'rgba(82, 196, 26, 0.1)' : 'rgba(255, 77, 79, 0.1)';
         
         return (
           <span style={{ 
             color,
             backgroundColor: background,
-            border: `1px solid ${borderColor}`,
-            padding: '6px 16px',
-            borderRadius: '20px',
-            fontWeight: '700',
+            padding: '4px 12px',
+            borderRadius: '16px',
+            fontWeight: '600',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '6px',
-            fontSize: '14px'
+            gap: '4px'
           }}>
             {isPositive ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
             {percent.toFixed(2)}%
@@ -234,7 +229,7 @@ const CryptoPriceInfoPage: React.FC = () => {
       key: 'date',
       width: 200,
       render: (text: string) => (
-        <span style={{ color: '#87ceeb', fontSize: '13px', fontWeight: '500' }}>
+        <span style={{ color: '#666666', fontSize: '13px' }}>
           {new Date(text).toLocaleString()}
         </span>
       )
@@ -243,73 +238,82 @@ const CryptoPriceInfoPage: React.FC = () => {
 
   // 自定义加载组件
   const renderLoading = () => (
-    <div className={styles.loadingContainer}>
-      <Spin size="large" className={styles.loadingSpinner} />
-      <p className={styles.loadingText}>AI正在分析最新数字货币市场数据...</p>
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      padding: '60px 20px',
+      color: '#666666'
+    }}>
+      <Spin size="large" style={{ color: '#1677ff' }} />
+      <p style={{ marginTop: '16px', fontSize: '16px' }}>AI正在分析最新数字货币市场数据...</p>
     </div>
   );
 
   return (
     <div className={styles.cryptoPriceInfoPage}>
-      <div className={styles.headerSection}>
-        <div className={styles.titleContainer}>
-          <StarOutlined className={styles.starIcon} />
-          <Title level={3} className={styles.mainTitle}>AI驱动数字货币投资辅助系统</Title>
+      <Card>
+        <div className={styles.cardTitle}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <StarOutlined style={{ color: '#1677ff' }} />
+            <Title level={4} style={{ margin: 0, color: '#1f2937' }}>AI驱动数字货币投资辅助系统</Title>
+          </div>
+          
+          <Space size="large" align="center">
+            {lastUpdated && (
+              <Text style={{ color: '#1677ff', fontSize: '13px', fontWeight: '500' }}>
+                最后更新: {lastUpdated}
+              </Text>
+            )}
+            
+            <Button
+              type="primary"
+              icon={<ReloadOutlined />}
+              loading={buttonLoading}
+              onClick={handleRefresh}
+              size="middle"
+              style={{ transition: 'all 0.3s ease' }}
+            >
+              刷新数据
+            </Button>
+            
+            <Text className="refresh-tips">
+              智能AI实时市场分析，助力投资决策
+            </Text>
+          </Space>
         </div>
         
-        <Space size="large" align="center" className={styles.headerActions}>
-          {lastUpdated && (
-            <Text className={styles.lastUpdatedText}>
-              最后更新: {lastUpdated}
-            </Text>
+        <div style={{ position: 'relative' }}>
+          {loading && cryptoList.length === 0 ? (
+            renderLoading()
+          ) : (
+            <Table
+              className={styles.table}
+              dataSource={cryptoList}
+              columns={columns}
+              rowKey="id"
+              loading={loading}
+              pagination={{
+                total: total,
+                current: queryParams.pageNum,
+                pageSize: queryParams.pageSize,
+                onChange: handlePageChange,
+                showSizeChanger: true,
+                pageSizeOptions: ['10', '20', '50', '100'],
+                showTotal: (total, range) => (
+                  <span style={{ color: '#666666' }}>
+                    显示 {range[0]}-{range[1]} 条，共 {total} 条
+                  </span>
+                )
+              }}
+              scroll={{ x: 'max-content' }}
+              rowClassName={(record, index) => (index % 2 === 0 ? 'even-row' : 'odd-row')}
+              size="middle"
+            />
           )}
-          
-          <Button
-            className={styles.refreshButton}
-            icon={<ReloadOutlined />}
-            loading={buttonLoading}
-            onClick={handleRefresh}
-            size="large"
-          >
-            刷新数据
-          </Button>
-          
-          <Text className={styles.refreshTips}>
-            智能AI实时市场分析，助力投资决策
-          </Text>
-        </Space>
-      </div>
-      
-      <div className={styles.tableContainer}>
-        {loading && cryptoList.length === 0 ? (
-          renderLoading()
-        ) : (
-          <Table
-            className={styles.cryptoTable}
-            dataSource={cryptoList}
-            columns={columns}
-            rowKey="id"
-            loading={loading}
-            pagination={{
-              total: total,
-              current: queryParams.pageNum,
-              pageSize: queryParams.pageSize,
-              onChange: handlePageChange,
-              showSizeChanger: true,
-              pageSizeOptions: ['10', '20', '50', '100'],
-              showTotal: (total, range) => (
-                <span className={styles.paginationText}>
-                  显示 {range[0]}-{range[1]} 条，共 {total} 条
-                </span>
-              ),
-              className: styles.pagination
-            }}
-            scroll={{ x: 'max-content' }}
-            rowClassName={(record, index) => styles.row}
-            size="middle"
-          />
-        )}
-      </div>
+        </div>
+      </Card>
     </div>
   );
 };
