@@ -3,6 +3,7 @@ import { Table, Card, Input, Select, DatePicker, Space, Tag, Typography, Divider
 import type { ColumnsType } from 'antd/es/table';
 import { request } from '@umijs/max';
 import dayjs from 'dayjs';
+import styles from './index.less';
 
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
@@ -264,10 +265,10 @@ const Main: React.FC = () => {
   ];
 
   return (
-    <Card title="加密货币新闻数据" style={{ minHeight: '100vh' }}>
+    <Card title="加密货币新闻数据" style={{ minHeight: '100vh' }} className={styles.cryptoNewsPage}>
       {/* 搜索条件 */}
-      <div style={{ marginBottom: 20, padding: 16, backgroundColor: '#f5f5f5', borderRadius: 8 }}>
-        <Title level={5}>搜索条件</Title>
+      <div className={styles.searchContainer}>
+        <Title level={5} className={styles.searchTitle}>搜索条件</Title>
         <Space wrap style={{ marginBottom: 16 }}>
           <Search
             placeholder="加密货币名称"
@@ -285,57 +286,34 @@ const Main: React.FC = () => {
             <Option value="上涨">上涨</Option>
             <Option value="下跌">下跌</Option>
           </Select>
-          <Space>
+          <Space className={styles.searchButtons}>
             <button 
               onClick={handleSearch}
-              style={{
-                padding: '0 16px',
-                height: 32,
-                backgroundColor: '#1890ff',
-                color: 'white',
-                border: 'none',
-                borderRadius: 4,
-                cursor: 'pointer',
-              }}
+              className={styles.searchBtn}
             >
               搜索
             </button>
             <button
               onClick={handleReset}
-              style={{
-                padding: '0 16px',
-                height: 32,
-                backgroundColor: '#f5f5f5',
-                border: '1px solid #d9d9d9',
-                borderRadius: 4,
-                cursor: 'pointer',
-              }}
+              className={styles.resetBtn}
             >
               重置
             </button>
             <button
               onClick={handleRefreshData}
               disabled={refreshLoading}
-              style={{
-                padding: '0 16px',
-                height: 32,
-                backgroundColor: refreshLoading ? '#d9d9d9' : '#52c41a',
-                color: 'white',
-                border: 'none',
-                borderRadius: 4,
-                cursor: refreshLoading ? 'not-allowed' : 'pointer',
-              }}
+              className={styles.refreshBtn}
             >
               {refreshLoading ? '刷新中...' : '刷新数据'}
             </button>
-          <span className="refresh-tips" style={{marginLeft: '10px', color: '#888'}}>正在从Dify API刷新加密货币新闻数据（此过程可能需要较长时间，请耐心等待）...</span>
+          <span className="refresh-tips">正在从Dify API刷新加密货币新闻数据（此过程可能需要较长时间，请耐心等待）...</span>
           </Space>
         </Space>
       </div>
 
       {/* 数据统计 */}
-      <div style={{ marginBottom: 20 }}>
-        <Text type="secondary">共 {total} 条数据</Text>
+      <div className={styles.dataStatistics}>
+        <Text type="secondary" className={styles.statisticsText}>共 {total} 条数据</Text>
       </div>
 
       {/* 数据表格 */}
@@ -353,30 +331,23 @@ const Main: React.FC = () => {
           showTotal: (total) => `共 ${total} 条数据`,
         }}
         scroll={{ x: 1200 }}
+        className={styles.newsTable}
       />
 
       {/* 市场分析摘要 */}
       <Divider style={{ marginTop: 30 }} />
-      <div style={{ padding: 16, backgroundColor: '#f0f8ff', borderRadius: 8 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <Title level={5}>市场分析摘要</Title>
+      <div className={styles.marketAnalysis}>
+        <div className={styles.analysisHeader}>
+          <Title level={5} className={styles.analysisTitle}>市场分析摘要</Title>
           <button
             onClick={handleGetMarketAnalysis}
             disabled={analysisLoading}
-            style={{
-              padding: '0 16px',
-              height: 32,
-              backgroundColor: analysisLoading ? '#d9d9d9' : '#1890ff',
-              color: 'white',
-              border: 'none',
-              borderRadius: 4,
-              cursor: analysisLoading ? 'not-allowed' : 'pointer',
-            }}
+            className={styles.analysisButton}
           >
             {analysisLoading ? '分析中...' : '分析'}
           </button>
         </div>
-        <div style={{ lineHeight: 1.8, fontSize: 15, whiteSpace: 'pre-line' }}>
+        <div className={styles.analysisContent}>
           {summary || '暂无市场分析数据，请点击分析按钮获取最新市场分析摘要。'}
         </div>
       </div>
