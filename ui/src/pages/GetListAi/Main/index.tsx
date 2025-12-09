@@ -159,9 +159,11 @@ const UserCryptoPurchasesPage: React.FC = () => {
     try {
       const res = await listUserCryptoPurchasesPage(queryParams);
       if (res.code === 200) {
-        const originalList = res.rows || [];
-        setPurchasesList(originalList);
-        setTotal(res.total || 0);
+          const originalList = res.rows || [];
+          // 强制限制每页显示数量为10条
+          const limitedList = originalList.slice(0, 10);
+          setPurchasesList(limitedList);
+          setTotal(res.total || 0);
       } else {
         message.error(res.msg || '获取用户虚拟货币购买记录失败');
         setPurchasesList([]);
@@ -408,10 +410,9 @@ const UserCryptoPurchasesPage: React.FC = () => {
   const columns = [
     {
       title: '记录ID',
-      dataIndex: 'id',
-      key: 'id',
+      key: 'rowIndex',
       width: 100,
-      render: (text: number) => <span className={styles.fontStyles.price}>{text}</span>
+      render: (_: any, __: any, index: number) => <span className={styles.fontStyles.price}>{index + 1}</span>
     },
     {
       title: '用户ID',
@@ -498,20 +499,22 @@ const UserCryptoPurchasesPage: React.FC = () => {
           </div>
         }
       >
-        <Table
-          columns={columns}
-          dataSource={purchasesList}
-          rowKey="id"
-          loading={loading}
-          pagination={{
-            current: queryParams.pageNum,
-            pageSize: queryParams.pageSize,
-            total: total,
-            onChange: handlePageChange,
-            showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50', '100']
-          }}
-        />
+        <div className={styles.table}>
+          <Table
+            columns={columns}
+            dataSource={purchasesList.slice(0, 10)}
+            rowKey="id"
+            loading={loading}
+            pagination={{
+              current: queryParams.pageNum,
+              pageSize: 10,
+              total: total,
+              onChange: handlePageChange,
+              showSizeChanger: false,
+              pageSizeOptions: ['10']
+            }}
+          />
+        </div>
       </Card>
 
       {/* Buy Modal */}

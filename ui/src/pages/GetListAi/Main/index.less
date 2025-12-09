@@ -1,30 +1,54 @@
 .userCryptoPurchasesPage {
   padding: 24px;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
-  color: rgba(0, 0, 0, 0.85);
+  color: #333333;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  position: relative;
   overflow-x: hidden;
+  
+  > * {
+    position: relative;
+  }
 
   .card {
-    margin-bottom: 24px;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #f0f0f0;
-    background-color: #ffffff;
+    margin-bottom: 32px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
     z-index: 1;
     
-    &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+      background-size: 200% 100%;
+      animation: gradientFlow 3s linear infinite;
+      z-index: 2;
     }
+    
+    &:hover {
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+      transform: translateY(-2px);
+      border-color: rgba(102, 126, 234, 0.4);
+    }
+  }
+  
+  @keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
   }
 
   .header {
@@ -32,15 +56,17 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #f0f0f0;
+    padding: 20px 24px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
   }
 
   .title {
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 24px;
+    font-weight: 700;
     margin: 0;
-    color: rgba(0, 0, 0, 0.85);
+    color: #333333;
   }
 
   .buttonGroup {
@@ -52,12 +78,23 @@
     margin-bottom: 24px;
     border-radius: 16px;
     overflow: hidden;
-    background: linear-gradient(135deg, rgba(30, 35, 55, 0.95), rgba(26, 32, 44, 0.95));
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(102, 126, 234, 0.2);
+    background: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
     position: relative;
-    z-index: 1;
+    
+    /* 表格背景装饰 */
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: linear-gradient(180deg, rgba(102, 126, 234, 0.1), transparent);
+      z-index: 0;
+      pointer-events: none;
+    }
   }
 
   .pagination {
@@ -94,13 +131,14 @@
     border-radius: 16px;
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.85));
+    background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(16px);
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
     &:hover {
-      box-shadow: 0 15px 48px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 15px 48px rgba(0, 0, 0, 0.3);
       transform: translateY(-4px);
+      border-color: rgba(102, 126, 234, 0.5);
     }
 
     .recommendationHeader {
@@ -144,18 +182,34 @@
 
     .recommendationItem {
       padding: 24px;
-      border: 2px solid #e8f4ff;
+      border: 2px solid rgba(102, 126, 234, 0.2);
       border-radius: 16px;
       transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-      background: linear-gradient(135deg, #ffffff, #f8f9fa);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(8px);
       position: relative;
       overflow: hidden;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      
+      /* 微型价格走势图背景 */
+      &::after {
+        content: '';
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 60px;
+        height: 30px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        opacity: 0.1;
+        border-radius: 4px;
+        clip-path: polygon(0% 70%, 10% 50%, 20% 60%, 30% 40%, 40% 50%, 50% 30%, 60% 40%, 70% 20%, 80% 30%, 90% 10%, 100% 20%);
+      }
 
       &:hover {
         border-color: #667eea;
-        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.2);
+        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.3);
         transform: translateY(-3px);
+        background: rgba(255, 255, 255, 0.05);
       }
 
       &::before {
@@ -180,21 +234,29 @@
       font-size: 20px;
       font-weight: 700;
       margin-bottom: 16px;
-      color: #2c3e50;
+      color: #ffffff;
       display: flex;
       align-items: center;
       gap: 8px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
     .recommendationItemPrice {
-      color: #52c41a;
+      color: #00ff88;
       font-size: 24px;
       font-weight: 700;
       margin-bottom: 12px;
       display: flex;
       align-items: center;
       gap: 12px;
-      transition: color 0.3s ease;
+      transition: all 0.3s ease;
+      text-shadow: 0 1px 3px rgba(0, 255, 136, 0.3);
+      
+      &::before {
+        content: '$';
+        font-size: 16px;
+        opacity: 0.8;
+      }
     }
 
     .recommendationItemChange {
@@ -269,6 +331,7 @@
     letter-spacing: 0.5px;
     position: relative;
     overflow: hidden;
+    border: none;
     
     // 按钮内部发光效果
     &::before {
@@ -278,7 +341,7 @@
       left: -50%;
       width: 200%;
       height: 200%;
-      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
       transform: rotate(45deg);
       transition: all 0.6s ease;
       opacity: 0;
@@ -290,13 +353,12 @@
     
     &.ant-btn-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3), 0 0 0 1px rgba(102, 126, 234, 0.2);
         
         &:hover {
           background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4), 0 0 30px rgba(102, 126, 234, 0.2);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4), 0 0 40px rgba(102, 126, 234, 0.3);
         }
 
       &:active {
@@ -380,34 +442,37 @@
 
   .ant-table {
     .ant-table-thead > tr > th {
-      background: linear-gradient(135deg, rgba(30, 35, 55, 0.8), rgba(26, 32, 44, 0.8));
+      background: linear-gradient(135deg, rgba(30, 35, 55, 0.95), rgba(26, 32, 44, 0.95));
       font-weight: 700;
-      color: #f0f2f5;
+      color: #ffffff;
       font-size: 14px;
-      padding: 16px 12px;
+      padding: 20px 16px;
       border-bottom: 2px solid rgba(102, 126, 234, 0.3);
       position: relative;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       
       &::before {
         content: '';
         position: absolute;
-        left: 12px;
-        right: 12px;
+        left: 16px;
+        right: 16px;
         bottom: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.6), transparent);
+        animation: shimmer 2s infinite;
       }
     }
     
     .ant-table-tbody > tr {
       transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
       position: relative;
       
       &:hover {
-        background: linear-gradient(90deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        background: rgba(102, 126, 234, 0.08);
         transform: translateX(4px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
       }
       
       &:hover > td {
@@ -416,11 +481,21 @@
       }
 
       & > td {
-        padding: 16px 12px;
+        padding: 20px 16px;
         font-size: 14px;
-        color: #f0f2f5;
-        transition: color 0.3s ease;
+        color: #e0e6ed;
+        transition: all 0.3s ease;
         position: relative;
+        border-right: 1px solid rgba(255, 255, 255, 0.03);
+        
+        &:last-child {
+          border-right: none;
+        }
+      }
+      
+      /* 奇偶行交替效果 */
+      &:nth-child(even) {
+        background: rgba(255, 255, 255, 0.01);
       }
     }
 
@@ -545,14 +620,14 @@
       font-weight: 700;
       line-height: 1.2;
       letter-spacing: -0.05em;
-      color: #f0f2f5;
+      color: #333333;
     }
     
     .subtitle {
       font-size: 22px;
       font-weight: 600;
       line-height: 1.3;
-      color: #f0f2f5;
+      color: #333333;
     }
     
     // 正文样式
@@ -560,14 +635,14 @@
       font-size: 16px;
       font-weight: 400;
       line-height: 1.6;
-      color: #d0d5dd;
+      color: #666666;
     }
     
     .small {
       font-size: 14px;
       font-weight: 400;
       line-height: 1.5;
-      color: #9ca3af;
+      color: #999999;
     }
     
     // 特殊文本样式 - 加密货币名称
@@ -586,18 +661,27 @@
         bottom: -2px;
         left: 0;
         width: 100%;
-        height: 1px;
+        height: 2px;
         background: linear-gradient(90deg, transparent, #667eea, transparent);
+        animation: shimmer 2s infinite;
       }
     }
     
     // 数字和价格样式 - 金融主题
     .price {
       font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-      font-weight: 600;
-      color: #f0f2f5;
+      font-weight: 700;
+      color: #333333;
       font-size: 15px;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      
+      // 价格变动动画
+      &.up {
+        color: #10b981;
+      }
+      
+      &.down {
+        color: #ef4444;
+      }
     }
     
     // 按钮文本样式
@@ -606,7 +690,6 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       font-size: 14px;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
   }
 
