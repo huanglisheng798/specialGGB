@@ -156,15 +156,25 @@ public class CryptoDifyService {
             // 批量保存新数据
             List<CryptoPriceInfo> cryptoList = new ArrayList<>();
 
-            // 解析cryptocurrency_data数组
-            if (cryptoDataJson.has("cryptocurrency_data")) {
-            if (cryptoDataJson.get("cryptocurrency_data").isArray()) {
-                JsonNode dataArray = cryptoDataJson.get("cryptocurrency_data");
+            // 统一解析数据源：支持根节点为数组或对象含cryptocurrency_data
+            JsonNode dataArray = null;
+            if (cryptoDataJson != null) {
+                if (cryptoDataJson.isArray()) {
+                    dataArray = cryptoDataJson;
+                } else if (cryptoDataJson.has("cryptocurrency_data") && cryptoDataJson.get("cryptocurrency_data").isArray()) {
+                    dataArray = cryptoDataJson.get("cryptocurrency_data");
+                }
+            }
+
+            if (dataArray == null) {
+                log.warn("未找到有效的加密货币数据数组（根为数组或包含cryptocurrency_data）");
+            } else {
                 log.info("获取到的加密货币数据数量：{}", dataArray.size());
                 if (dataArray.isEmpty()) {
                     log.warn("获取到的加密货币数据数组为空，无需保存");
                     return;
                 }
+
                 for (JsonNode cryptoData : dataArray) {
                     try {
                         // 验证必要字段是否存在
@@ -179,64 +189,63 @@ public class CryptoDifyService {
                         CryptoPriceInfo cryptoPriceInfo = new CryptoPriceInfo();
 
                         // 解析字段（注意Dify返回的字段名差异）
-                        cryptoPriceInfo.setRank(cryptoData.get("rank").asInt()); // 从数据中获取排名
+                        if (cryptoData.has("rank")) {
+                            cryptoPriceInfo.setRank(cryptoData.get("rank").asInt());
+                        }
                         cryptoPriceInfo.setName(cryptoData.get("name").asText());
                         cryptoPriceInfo.setSymbol(cryptoData.get("symbol").asText());
                         cryptoPriceInfo.setPrice(new BigDecimal(cryptoData.get("price").asText()));
 
                         // 处理不同可能的change字段名
-                        BigDecimal change;
                         String changeStr;
                         if (cryptoData.has("change")) {
-                            changeStr = cryptoData.get("change").asText().replace("+", "");
+                            changeStr = cryptoData.get("change").asText();
                         } else if (cryptoData.has("change_amount")) {
-                            changeStr = cryptoData.get("change_amount").asText().replace("+", "");
+                            changeStr = cryptoData.get("change_amount").asText();
                         } else {
-                            changeStr = cryptoData.get("change amount").asText().replace("+", "");
+                            changeStr = cryptoData.get("change amount").asText();
                         }
-                        change = new BigDecimal(changeStr);
+                        changeStr = changeStr.replace("+", "");
+                        BigDecimal change = new BigDecimal(changeStr);
                         cryptoPriceInfo.setChange(change);
 
                         // 处理不同可能的change_percent字段名
-                        BigDecimal changePercent;
                         String changePercentStr;
                         if (cryptoData.has("change_percent")) {
-                            changePercentStr = cryptoData.get("change_percent").asText().replace("+", "").replace("%", "");
+                            changePercentStr = cryptoData.get("change_percent").asText();
                         } else if (cryptoData.has("change_percentage")) {
-                            changePercentStr = cryptoData.get("change_percentage").asText().replace("+", "").replace("%", "");
+                            changePercentStr = cryptoData.get("change_percentage").asText();
                         } else {
-                            changePercentStr = cryptoData.get("change percentage").asText().replace("+", "").replace("%", "");
+                            changePercentStr = cryptoData.get("change percentage").asText();
                         }
-                        changePercent = new BigDecimal(changePercentStr);
+                        changePercentStr = changePercentStr.replace("+", "").replace("%", "");
+                        BigDecimal changePercent = new BigDecimal(changePercentStr);
                         cryptoPriceInfo.setChangePercent(changePercent);
 
                         // 根据涨跌幅计算趋势
                         cryptoPriceInfo.setTrend(change.compareTo(BigDecimal.ZERO) > 0 ? "up" : "down");
-                        cryptoPriceInfo.setDate(LocalDateTime.now()); // 使用当前时间
+                        cryptoPriceInfo.setDate(LocalDateTime.now());
 
                         cryptoList.add(cryptoPriceInfo);
                     } catch (Exception e) {
                         log.error("解析虚拟货币数据失败，数据: {}", cryptoData, e);
                         // 跳过无效数据，继续处理下一条
                     }
-                } // 关闭for循环
-            } else {
-                log.warn("未找到cryptocurrency_data数组或数据格式错误");
+                }
             }
-        } // 关闭cryptocurrency_data存在性检查
 
-        // 批量插入数据库
-        if (!cryptoList.isEmpty()) {
-            cryptoPriceInfoMapper.insertBatch(cryptoList);
-            log.info("虚拟货币数据保存成功，共{}条有效数据", cryptoList.size());
-            // 验证数据库中的记录数量
-            Long count = cryptoPriceInfoMapper.selectCount(null);
-            log.info("数据库中当前虚拟货币数据数量：{}", count);
-        } else {
-            log.info("未找到有效虚拟货币数据");
+            // 批量插入数据库
+            if (!cryptoList.isEmpty()) {
+                cryptoPriceInfoMapper.insertBatch(cryptoList);
+                log.info("虚拟货币数据保存成功，共{}条有效数据", cryptoList.size());
+                // 验证数据库中的记录数量
+                Long count = cryptoPriceInfoMapper.selectCount(null);
+                log.info("数据库中当前虚拟货币数据数量：{}", count);
+            } else {
+                log.info("未找到有效虚拟货币数据");
+            }
+        } catch (Exception e) {
+            log.error("保存虚拟货币数据到数据库失败：", e);
         }
-    } catch (Exception e) {
-        log.error("保存虚拟货币数据到数据库失败：", e);
     }
-}
 }
