@@ -55,13 +55,13 @@ dify:
   api:
     url: https://api.dify.ai/v1/chat-messages
     # 默认API密钥（用于CryptoDifyService）
-    key: app-HOPpQ9xlmDhz24x5ANTmPCBg
+    key:
     # 虚拟货币推荐服务的API密钥
-    recommendation-key: app-idQ44wnXiR022DzEFcbW54pG
+    recommendation-key: 
     # 虚拟货币新闻服务的API密钥
-    news-key: app-o0sVWjMFrzS5tyDzaewafxXD
+    news-key: 
     # 虚拟货币市场分析服务的API密钥
-    market-analysis-key: app-2eZTyyTHlcEcJ1p5bAyGPfpB
+    market-analysis-key: 
 
 # 用户配置
 user:
