@@ -1,5 +1,6 @@
 import Footer from '@/components/Footer';
 import { getCaptchaImg, login } from '@/services/system/auth';
+import { isPassword, specialcharactersReg, isPhone } from '@/utils/regExp';
 import { getFakeCaptcha } from '@/services/ant-design-pro/login';
 import {
   AlipayCircleOutlined,
@@ -271,6 +272,15 @@ const Login: React.FC = () => {
                       />
                     ),
                   },
+                  {
+                    pattern: specialcharactersReg,
+                    message: (
+                      <FormattedMessage
+                        id="pages.login.username.invalid"
+                        defaultMessage="用户名格式错误！"
+                      />
+                    ),
+                  },
                 ]}
               />
               <ProFormText.Password
@@ -291,6 +301,15 @@ const Login: React.FC = () => {
                       <FormattedMessage
                         id="pages.login.password.required"
                         defaultMessage="请输入密码！"
+                      />
+                    ),
+                  },
+                  {
+                    pattern: isPassword,
+                    message: (
+                      <FormattedMessage
+                        id="pages.login.password.invalid"
+                        defaultMessage="密码格式错误！请输入6-16位包含字母、数字或特殊字符的密码"
                       />
                     ),
                   },
@@ -363,7 +382,7 @@ const Login: React.FC = () => {
                     ),
                   },
                   {
-                    pattern: /^1\d{10}$/,
+                    pattern: isPhone,
                     message: (
                       <FormattedMessage
                         id="pages.login.phoneNumber.invalid"
@@ -433,6 +452,7 @@ const Login: React.FC = () => {
               style={{
                 float: 'right',
               }}
+              onClick={() => history.push('/user/forgotPassword')}
             >
               <FormattedMessage id="pages.login.forgotPassword" defaultMessage="忘记密码" />
             </a>

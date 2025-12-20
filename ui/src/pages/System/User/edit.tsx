@@ -11,6 +11,7 @@ import { Form, Modal } from 'antd';
 import { useIntl, FormattedMessage } from '@umijs/max';
 import { DataNode } from 'antd/es/tree';
 import { DictValueEnumObj } from '@/components/DictTag';
+import { isPhone, isEmail, isPassword, specialcharactersReg } from '@/utils/regExp';
 
 /* *
  *
@@ -144,6 +145,12 @@ const UserForm: React.FC<UserFormProps> = (props) => {
                 <FormattedMessage id="请输入手机号码！" defaultMessage="请输入手机号码！" />
               ),
             },
+            {
+              pattern: isPhone,
+              message: (
+                <FormattedMessage id="手机号码格式错误！" defaultMessage="手机号码格式错误！" />
+              ),
+            },
           ]}
         />
         <ProFormText
@@ -161,6 +168,12 @@ const UserForm: React.FC<UserFormProps> = (props) => {
                 <FormattedMessage id="请输入用户邮箱！" defaultMessage="请输入用户邮箱！" />
               ),
             },
+            {
+              pattern: isEmail,
+              message: (
+                <FormattedMessage id="用户邮箱格式错误！" defaultMessage="用户邮箱格式错误！" />
+              ),
+            },
           ]}
         />
         <ProFormText
@@ -175,6 +188,15 @@ const UserForm: React.FC<UserFormProps> = (props) => {
           rules={[
             {
               required: true,
+              message: (
+                <FormattedMessage id="请输入用户账号！" defaultMessage="请输入用户账号！" />
+              ),
+            },
+            {
+              pattern: specialcharactersReg,
+              message: (
+                <FormattedMessage id="用户名格式错误！" defaultMessage="用户名格式错误！" />
+              ),
             },
           ]}
         />
@@ -191,6 +213,10 @@ const UserForm: React.FC<UserFormProps> = (props) => {
             {
               required: false,
               message: <FormattedMessage id="请输入密码！" defaultMessage="请输入密码！" />,
+            },
+            {
+              pattern: isPassword,
+              message: <FormattedMessage id="密码格式错误！" defaultMessage="密码格式错误！" />,
             },
           ]}
         />

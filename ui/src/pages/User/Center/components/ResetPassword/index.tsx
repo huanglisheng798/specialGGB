@@ -3,6 +3,7 @@ import { Form, message } from 'antd';
 import { FormattedMessage, useIntl } from '@umijs/max';
 import { updateUserPwd } from '@/services/system/user';
 import { ProForm, ProFormText } from '@ant-design/pro-components';
+import { isPassword } from '@/utils/regExp';
 
 const ResetPassword: React.FC = () => {
   const [form] = Form.useForm();
@@ -40,6 +41,10 @@ const ResetPassword: React.FC = () => {
               {
                 required: true,
                 message: <FormattedMessage id="请输入旧密码！" defaultMessage="请输入旧密码！" />,
+              },
+              {
+                pattern: isPassword,
+                message: <FormattedMessage id="密码格式错误！" defaultMessage="密码格式错误！" />,
               },
             ]}
           />
