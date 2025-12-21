@@ -45,6 +45,13 @@ export async function getInitialState(): Promise<{
     }
     return undefined;
   };
+  // 从localStorage读取保存的主题设置
+  const savedTheme = localStorage.getItem('navTheme');
+  // 合并默认设置和保存的主题设置
+  const initialSettings = {
+    ...defaultSettings,
+    ...(savedTheme ? { navTheme: savedTheme } : {}),
+  } as Partial<LayoutSettings>;
   // 如果不是登录页面，执行
   const { location } = history;
   if (location.pathname !== PageEnum.LOGIN) {
@@ -52,12 +59,12 @@ export async function getInitialState(): Promise<{
     return {
       fetchUserInfo,
       currentUser,
-      settings: defaultSettings as Partial<LayoutSettings>,
+      settings: initialSettings,
     };
   }
   return {
     fetchUserInfo,
-    settings: defaultSettings as Partial<LayoutSettings>,
+    settings: initialSettings,
   };
 }
 
@@ -170,7 +177,7 @@ export async function onRouteChange({ clientRoutes, location }:OnRouteChangePara
   if (firstPathName.length>0 && firstPathName !== curModel) {
     localStorage.setItem('curModel',firstPathName)
     window.location.reload(); 
-    
+    //页面重载 
   }
   
 }
