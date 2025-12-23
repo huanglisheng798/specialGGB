@@ -406,6 +406,22 @@ const UserCryptoPurchasesPage: React.FC = () => {
     }
   }, [buyModalVisible]);
 
+  // 计算持仓总价值和盈亏
+  const calculateHoldingsValue = (record: UserCryptoPurchases) => {
+    const currentPrice = cryptoPrices.get(record.cryptoName);
+    if (currentPrice) {
+      const currentValue = currentPrice * record.amount;
+      const profitLoss = currentValue - record.totalSpent;
+      const profitLossPercent = (profitLoss / record.totalSpent) * 100;
+      return {
+        currentValue,
+        profitLoss,
+        profitLossPercent
+      };
+    }
+    return null;
+  };
+
   // 表格列配置
   const columns = [
     {
@@ -426,7 +442,12 @@ const UserCryptoPurchasesPage: React.FC = () => {
       dataIndex: 'cryptoName',
       key: 'cryptoName',
       width: 150,
-      render: (text: string) => <span className={styles.fontStyles.emphasis}>{text}</span>
+      render: (text: string) => (
+        <div className={styles.coinNameContainer}>
+          <div className={styles.coinIcon}>{text.charAt(0)}</div>
+          <span className={styles.fontStyles.emphasis}>{text}</span>
+        </div>
+      )
     },
     {
       title: '购买数量',
@@ -436,11 +457,22 @@ const UserCryptoPurchasesPage: React.FC = () => {
       render: (text: number) => <span className={styles.fontStyles.price}>{text.toFixed(8)}</span>
     },
     {
-      title: '单价(USD)',
+      title: '购买单价(USD)',
       dataIndex: 'pricePerUnit',
       key: 'pricePerUnit',
       width: 150,
       render: (text: number) => <span className={styles.fontStyles.price}>${text.toFixed(2)}</span>
+    },
+    {
+      title: '当前价格(USD)',
+      key: 'currentPrice',
+      width: 150,
+      render: (_: any, record: UserCryptoPurchases) => {
+        const currentPrice = cryptoPrices.get(record.cryptoName);
+        return currentPrice ? (
+          <span className={styles.fontStyles.price}>${currentPrice.toFixed(2)}</span>
+        ) : '-';
+      }
     },
     {
       title: '总花费(USD)',
@@ -448,6 +480,47 @@ const UserCryptoPurchasesPage: React.FC = () => {
       key: 'totalSpent',
       width: 150,
       render: (text: number) => <span className={styles.fontStyles.price}>${text.toFixed(2)}</span>
+    },
+    {
+      title: '当前价值(USD)',
+      key: 'currentValue',
+      width: 150,
+      render: (_: any, record: UserCryptoPurchases) => {
+        const holdingsValue = calculateHoldingsValue(record);
+        return holdingsValue ? (
+          <span className={styles.fontStyles.price}>${holdingsValue.currentValue.toFixed(2)}</span>
+        ) : '-';
+      }
+    },
+    {
+      title: '盈亏(USD)',
+      key: 'profitLoss',
+      width: 130,
+      render: (_: any, record: UserCryptoPurchases) => {
+        const holdingsValue = calculateHoldingsValue(record);
+        if (!holdingsValue) return '-';
+        const isProfit = holdingsValue.profitLoss >= 0;
+        return (
+          <span className={isProfit ? styles.positiveChange : styles.negativeChange}>
+            {isProfit ? '+' : ''}${holdingsValue.profitLoss.toFixed(2)}
+          </span>
+        );
+      }
+    },
+    {
+      title: '盈亏率',
+      key: 'profitLossPercent',
+      width: 120,
+      render: (_: any, record: UserCryptoPurchases) => {
+        const holdingsValue = calculateHoldingsValue(record);
+        if (!holdingsValue) return '-';
+        const isProfit = holdingsValue.profitLossPercent >= 0;
+        return (
+          <span className={isProfit ? styles.positiveChange : styles.negativeChange}>
+            {isProfit ? '+' : ''}{holdingsValue.profitLossPercent.toFixed(2)}%
+          </span>
+        );
+      }
     },
     {
       title: '购买时间',
@@ -466,6 +539,7 @@ const UserCryptoPurchasesPage: React.FC = () => {
           danger 
           onClick={() => handleSell(record)}
           icon={<DeleteOutlined />}
+          className={styles.sellButton}
         >
           卖出
         </Button>
@@ -485,6 +559,7 @@ const UserCryptoPurchasesPage: React.FC = () => {
                 type="primary" 
                 onClick={() => setBuyModalVisible(true)}
                 icon={<PlusOutlined />}
+                className={styles.recommendationButton}
               >
                 购买虚拟货币
               </Button>
